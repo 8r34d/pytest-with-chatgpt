@@ -1,0 +1,63 @@
+import pytest
+# from classroom import Classroom, Student, Teacher, TooManyStudents
+from source.school import Classroom, Student, Teacher, TooManyStudents
+
+
+# ⚗️ Fixtures
+
+@pytest.fixture
+def dumbledore():
+    return Teacher("Albus Dumbledore")
+
+@pytest.fixture
+def hogwarts_students():
+    return [Student(name) for name in [
+        "Harry Potter", "Hermione Granger", "Ron Weasley",
+        "Neville Longbottom", "Luna Lovegood", "Draco Malfoy",
+        "Ginny Weasley", "Fred Weasley", "George Weasley",
+        "Cho Chang"
+    ]]
+
+@pytest.fixture
+def defense_classroom(dumbledore, hogwarts_students):
+    return Classroom(teacher=dumbledore, students=hogwarts_students, course_title="Defense Against the Dark Arts")
+
+# 🧪 Tests
+
+def test_add_student_success(defense_classroom):
+    new_student = Student("Seamus Finnigan")
+    defense_classroom.add_student(new_student)
+    assert new_student in defense_classroom.students
+
+def test_add_student_raises_if_too_many(defense_classroom):
+    # Already 10 students, adding 2 more
+    defense_classroom.add_student(Student("Dean Thomas"))
+    with pytest.raises(TooManyStudents):
+        defense_classroom.add_student(Student("Lavender Brown"))
+
+def test_remove_student(defense_classroom):
+    defense_classroom.remove_student("Hermione Granger")
+    names = [student.name for student in defense_classroom.students]
+    assert "Hermione Granger" not in names
+
+def test_change_teacher(defense_classroom):
+    new_teacher = Teacher("Severus Snape")
+    defense_classroom.change_teacher(new_teacher)
+    assert defense_classroom.teacher.name == "Severus Snape"
+
+# 🧙 Parametrized Tests
+
+@pytest.mark.parametrize("student_name", [
+    "Harry Potter", "Luna Lovegood", "Fred Weasley"
+])
+def test_remove_multiple_students(defense_classroom, student_name):
+    defense_classroom.remove_student(student_name)
+    names = [student.name for student in defense_classroom.students]
+    assert student_name not in names
+
+@pytest.mark.parametrize("new_teacher_name", [
+    "Minerva McGonagall", "Remus Lupin", "Gilderoy Lockhart"
+])
+def test_teacher_change_multiple(defense_classroom, new_teacher_name):
+    defense_classroom.change_teacher(Teacher(new_teacher_name))
+    assert defense_classroom.teacher.name == new_teacher_name
