@@ -1,5 +1,4 @@
 import pytest
-# from classroom import Classroom, Student, Teacher, TooManyStudents
 from source.school import Classroom, Student, Teacher, TooManyStudents
 
 
